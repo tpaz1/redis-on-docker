@@ -1,0 +1,63 @@
+version: '3'
+services:
+  redis-master:
+    container_name: "redis-master"
+    image: redis
+    command: redis-server /etc/redis-config/redis.conf
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./data/master:/data/"
+      - "./config/redis-master:/etc/redis-config"
+  redis-slave1:
+    container_name: "redis-slave1"
+    image: redis
+    ports:
+      - "6381:6379"
+    command: redis-server /etc/redis-config/redis.conf
+    volumes:
+      - "./data/slave:/data/"
+      - "./config/redis-slave:/etc/redis-config"
+    depends_on:
+      - redis-master
+  redis-slave2:
+    container_name: "redis-slave2"
+    image: redis
+    ports:
+      - "6380:6379"
+    command: redis-server /etc/redis-config/redis.conf
+    volumes:
+      - "./data/slave:/data/"
+      - "./config/redis-slave:/etc/redis-config"
+    depends_on:
+      - redis-master
+  redis-sentinel1:
+    container_name: 'redis-sentinel1'
+    image: redis
+    ports:
+      - "5001:5000"
+    command: redis-server /etc/sentinel/sentinel.conf --sentinel
+    volumes:
+      - "./config/sentinel/:/etc/sentinel/"
+    depends_on:
+      - redis-master
+#   redis-sentinel2:
+#    container_name: 'redis-sentinel2'
+#    image: redis
+#    ports:
+#      - "5001:5000"
+#    command: redis-server /etc/sentinel.conf --sentinel
+#    volumes:
+#      - "./config/sentinel/sentinel.conf:/etc/sentinel.conf"
+#    depends_on:
+#      - redis-slave1
+#  redis-sentinel3:
+#    container_name: 'redis-sentinel3'
+#    image: redis
+#    ports:
+#      - "5002:5000"
+#    command: redis-server /etc/sentinel.conf --sentinel
+#    volumes:
+#      - "./config/sentinel/sentinel.conf:/etc/sentinel.conf"
+#    depends_on:
+#      - redis-slave2
